@@ -2,8 +2,10 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
-    "lint": "eslint frontend backend",
-    "lint:fix": "eslint frontend backend --fix",
+    "lint": "eslint \"backend/**/*.{ts,tsx}\" \"frontend/**/*.{ts,tsx}\" --max-warnings=0",
+    "lint:back": "eslint backend --max-warnings=0",
+    "lint:front": "eslint \"frontend/**/*.{ts,tsx}\" --max-warnings=0",
+    "lint:fix": "eslint 'backend/**/*.{ts,tsx}' 'frontend/**/*.{ts,tsx}' --fix",
     "format": "prettier --write \"{frontend,backend}/**/*.{js,jsx,ts,tsx,mjs,cjs}\""
   },
   "lint-staged": {

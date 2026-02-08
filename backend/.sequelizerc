@@ -1,0 +1,13 @@
+/**
+ * @file .sequelizerc
+ * @description Sequelize configuration
+ */
+
+require("ts-node/register");
+
+module.exports = {
+  config: "src/config/db.migration.config.ts",
+  "models-path": "src/models",
+  "migrations-path": "src/migrations",
+  "seeders-path": "src/seeders",
+};
