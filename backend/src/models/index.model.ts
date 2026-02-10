@@ -1,12 +1,14 @@
 /**
  * @file index.model.ts
- * @fileoverview This file contains the index model
+ * @fileoverview This file servers as a centralized models registry. It registers the models and export sequelize
+ * instance. NOTE: This sequelize instance must be used in other files to access the database.
  */
 
 import { sequelize } from "../config/db.config.js";
 import { UserModel } from "./user.model.js";
 import { RefreshTokenModel } from "./refreshToken.model.js";
 import { PasswordResetModel } from "./passwordReset.model.js";
+import { AssetModel } from "./asset.model.js";
 
 /**
  * @constant models
@@ -16,13 +18,17 @@ export const models = {
   UserModel,
   RefreshTokenModel,
   PasswordResetModel,
+  AssetModel,
 };
 
 // associations
-UserModel.hasMany(RefreshTokenModel, { foreignKey: "user_id" });
-RefreshTokenModel.belongsTo(UserModel, { foreignKey: "user_id" });
+UserModel.hasMany(RefreshTokenModel, { foreignKey: "user_id", onDelete: "CASCADE", as: "refreshTokens" });
+RefreshTokenModel.belongsTo(UserModel, { foreignKey: "user_id", as: "user" });
 
-UserModel.hasMany(PasswordResetModel, { foreignKey: "user_id" });
-PasswordResetModel.belongsTo(UserModel, { foreignKey: "user_id" });
+UserModel.hasMany(PasswordResetModel, { foreignKey: "user_id", onDelete: "CASCADE", as: "passwordResets" });
+PasswordResetModel.belongsTo(UserModel, { foreignKey: "user_id", as: "user" });
+
+UserModel.hasMany(AssetModel, { foreignKey: "user_id", onDelete: "CASCADE", as: "assets" });
+AssetModel.belongsTo(UserModel, { foreignKey: "user_id", as: "user" });
 
 export { sequelize };

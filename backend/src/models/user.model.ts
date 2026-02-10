@@ -55,7 +55,7 @@ UserModel.init(
       field: "password_hash",
     },
     role: {
-      type: DataTypes.ENUM("user", "admin"),
+      type: DataTypes.ENUM(...Object.values(USER_ROLES)),
       allowNull: false,
       defaultValue: "user",
     },

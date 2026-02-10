@@ -3,7 +3,7 @@
  * @fileoverview This file contains the database configuration
  */
 
-import { env } from "../env.js";
+import { env } from "../env.ts";
 
 export default {
   development: {
