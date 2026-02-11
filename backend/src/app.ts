@@ -9,6 +9,7 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpecDoc } from "./config/swagger.js";
 import { env } from "./env.js";
 import { globalErrorHandler } from "./middlewares/error.middleware.js";
+import assetRoutes from "./modules/asset/asset.route.js";
 import authRoutes from "./modules/auth/auth.route.js";
 import userRoutes from "./modules/user/user.route.js";
 import { NotFoundError } from "./utils/error.utils.js";
@@ -60,6 +61,7 @@ app.get("/test", (req, res) => {
 
 app.use("/api/auth", authRoutes());
 app.use("/api/users", userRoutes());
+app.use("/api/assets", assetRoutes());
 
 // Handle 404 errors
 app.all(/.*/, (req, _res, next) => {

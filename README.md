@@ -1,5 +1,30 @@
 # digital-asset-manager
+
 A centralize and scalable solution to manage large volume of digital assets like images, videos and documents.
+
+## How to build and run the app
+
+### For development:
+
+- Database setup using migrations
+
+  > npx sequelize-cli db:create
+  > npx sequelize-cli db:migrate
+
+- Execute following commands using different terminals to run API server and BullMQ workers
+
+  > npm run dev or (npm run build)
+  > npm run worker:image
+  > npm run worker:video
+
+Also ensure that the Redis server is installed and running.
+
+### For production:
+
+- Database setup using migrations
+
+  > npx sequelize-cli db:create
+  > npx sequelize-cli db:migrate
 
 ## **Digital Asset Management (DAM) Platform**
 
@@ -10,7 +35,6 @@ Companies today generate and manage a large volume of digital assets — includi
 - Tag, categorize, and search assets based on content
 - Allow teams to preview, download, and share assets securely
 - Scale processing and storage as the volume grows
-
 
 ## Scope of work
 
@@ -37,10 +61,10 @@ Companies today generate and manage a large volume of digital assets — includi
 ### **4. Architecture/DevOps**
 
 - Use Docker + Docker Swarm to orchestrate:
-    - API service
-    - Worker service (asset processor)
-    - Redis + BullMQ dashboard
-    - Object storage (MinIO)
+  - API service
+  - Worker service (asset processor)
+  - Redis + BullMQ dashboard
+  - Object storage (MinIO)
 - Scale workers based on queue size
 
 ## **Tech Stack**

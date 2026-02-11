@@ -3,12 +3,9 @@
  * @fileoverview This file contains the swagger configuration
  */
 
-import swaggerJSDoc from "swagger-jsdoc";
 import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import swaggerJSDoc from "swagger-jsdoc";
+import { __dirname } from "../utils/file.utils.js";
 
 const swaggerDefinition = {
   openapi: "3.0.0",

@@ -15,3 +15,12 @@ export interface AccessTokenPayload extends JWTPayload {
   sub: string;
   role: UserRole;
 }
+
+/**
+ * @interface AuthenticatedUser
+ * @description Authenticated user
+ */
+export interface AuthenticatedUser {
+  id: number;
+  role: UserRole;
+}

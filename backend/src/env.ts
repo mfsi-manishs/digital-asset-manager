@@ -31,4 +31,9 @@ export const env = {
     dialect: "postgres" as const, // or "mysql" | "mariadb" | "sqlite" | "mssql"
     logging: process.env.DB_LOGGING === "true",
   },
+
+  redis: {
+    host: process.env.REDIS_HOST || "localhost",
+    port: Number(process.env.REDIS_PORT) || 6379,
+  },
 };

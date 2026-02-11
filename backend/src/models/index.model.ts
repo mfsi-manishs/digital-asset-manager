@@ -23,12 +23,12 @@ export const models = {
 
 // associations
 UserModel.hasMany(RefreshTokenModel, { foreignKey: "user_id", onDelete: "CASCADE", as: "refreshTokens" });
-RefreshTokenModel.belongsTo(UserModel, { foreignKey: "user_id", as: "user" });
+RefreshTokenModel.belongsTo(UserModel, { foreignKey: "user_id", as: "refreshTokenUser" });
 
 UserModel.hasMany(PasswordResetModel, { foreignKey: "user_id", onDelete: "CASCADE", as: "passwordResets" });
-PasswordResetModel.belongsTo(UserModel, { foreignKey: "user_id", as: "user" });
+PasswordResetModel.belongsTo(UserModel, { foreignKey: "user_id", as: "passwordResetUser" });
 
 UserModel.hasMany(AssetModel, { foreignKey: "user_id", onDelete: "CASCADE", as: "assets" });
-AssetModel.belongsTo(UserModel, { foreignKey: "user_id", as: "user" });
+AssetModel.belongsTo(UserModel, { foreignKey: "user_id", as: "assetUser" });
 
 export { sequelize };

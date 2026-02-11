@@ -4,7 +4,7 @@
  */
 
 import app from "./app.js";
-import { sequelize } from "./config/db.config.js";
+import { sequelize } from "./models/index.model.js";
 import { env } from "./env.js";
 
 const startServer = async () => {
