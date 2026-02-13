@@ -5,6 +5,7 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import path from "path";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpecDoc } from "./config/swagger.js";
 import { env } from "./env.js";
@@ -13,10 +14,12 @@ import assetRoutes from "./modules/asset/asset.route.js";
 import authRoutes from "./modules/auth/auth.route.js";
 import userRoutes from "./modules/user/user.route.js";
 import { NotFoundError } from "./utils/error.utils.js";
+import { __dirname, ensureDirExists } from "./utils/file.utils.js";
 
 const app = express();
 
 const isDevelopment = env.nodeEnv === "development";
+ensureDirExists(path.join(__dirname, "../uploads"));
 
 // Security Headers (Always first)
 app.use(

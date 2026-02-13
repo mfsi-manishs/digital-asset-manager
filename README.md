@@ -17,7 +17,20 @@ A centralize and scalable solution to manage large volume of digital assets like
   > npm run worker:image
   > npm run worker:video
 
-Also ensure that the Redis server is installed and running.
+Also ensure that the Redis server and MinIO is installed and running.
+
+- Installation of Redis on Docker
+  > docker run -d --name redis-server -p 6379:6379 redis
+- Installation of MinIO on Docker (on Powershell use backtick instead of backslash at line end for multiline command)
+  > docker run -d \
+  >
+  > > --name minio \
+  > > -p 9000:9000 \
+  > > -p 9001:9001 \
+  > > -e MINIO_ROOT_USER=minioadmin \
+  > > -e MINIO_ROOT_PASSWORD=MinioAdminPwd \
+  > > -v E:\ProjectsWorkspace\DB\minio:/data \
+  > > quay.io/minio/minio server /data --console-address ":9001"
 
 ### For production:
 
@@ -25,6 +38,8 @@ Also ensure that the Redis server is installed and running.
 
   > npx sequelize-cli db:create
   > npx sequelize-cli db:migrate
+
+- TODO
 
 ## **Digital Asset Management (DAM) Platform**
 

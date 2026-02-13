@@ -36,4 +36,11 @@ export const env = {
     host: process.env.REDIS_HOST || "localhost",
     port: Number(process.env.REDIS_PORT) || 6379,
   },
+
+  minio: {
+    host: process.env.MINIO_HOST || "localhost",
+    port: Number(process.env.MINIO_PORT) || 9000,
+    username: process.env.MINIO_ROOT_USER,
+    password: process.env.MINIO_ROOT_PASSWORD,
+  },
 };

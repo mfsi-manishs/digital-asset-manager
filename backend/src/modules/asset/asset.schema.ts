@@ -8,6 +8,7 @@
  * @description Upload response data transfer object
  */
 export interface UploadResDTO {
+  assetId?: number;
   filename: string;
   mimeType: string;
   status: string;

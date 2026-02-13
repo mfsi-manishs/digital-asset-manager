@@ -4,11 +4,12 @@
  */
 
 import type { Request, Response } from "express";
-import { ASSET_FILE_STATUS, ASSET_FILE_TYPES } from "../../models/asset.model.js";
+import { ASSET_FILE_STATUS, ASSET_FILE_TYPES, type AssetFileType } from "../../models/asset.model.js";
 import { imageQueue } from "../../services/imageQueue.service.js";
 import { videoQueue } from "../../services/videoQueue.service.js";
 import type { UploadResDTO } from "./asset.schema.js";
 import { AssetService } from "./asset.service.js";
+import { type QueueData } from "./asset.types.js";
 
 /**
  * @class AssetController
@@ -40,27 +41,36 @@ export class AssetController {
       const status = ASSET_FILE_STATUS.uploaded;
 
       const type = mimeType.split("/")[0];
-
+      const qData: QueueData = {
+        assetId: 0, //.must be replace with actual one after creation in db.
+        userId: req.user!.id,
+        originalName,
+        mimeType,
+        fileSize: size,
+        filePath,
+      };
       if (type?.match(/image/i)) {
         const asset = await AssetService.create(req.user!.id, {
           originalName,
-          type: ASSET_FILE_TYPES.image,
+          type: ASSET_FILE_TYPES.image as AssetFileType,
           status,
           mimeType,
           size,
         });
-        await imageQueue.add(`processImage-${asset.id}-${originalName}`, { filePath, assetId: asset.id });
-        results.push({ filename: originalName, mimeType, status: "queued" });
+        qData.assetId = asset.id;
+        await imageQueue.add(`processImage-${asset.id}-${originalName}`, qData);
+        results.push({ assetId: asset.id, filename: originalName, mimeType, status: "queued" });
       } else if (type?.match(/video/i)) {
         const asset = await AssetService.create(req.user!.id, {
           originalName,
-          type: ASSET_FILE_TYPES.video,
+          type: ASSET_FILE_TYPES.video as AssetFileType,
           status,
           mimeType,
           size,
         });
-        await videoQueue.add(`processVideo-${asset.id}-${originalName}`, { filePath, assetId: asset.id });
-        results.push({ filename: originalName, mimeType, status: "queued" });
+        qData.assetId = asset.id;
+        await videoQueue.add(`processVideo-${asset.id}-${originalName}`, qData);
+        results.push({ assetId: asset.id, filename: originalName, mimeType, status: "queued" });
       } else {
         results.push({
           filename: originalName,

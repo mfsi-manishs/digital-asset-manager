@@ -25,7 +25,7 @@ export const ASSET_FILE_TYPES = {
   document: "document",
   other: "other",
 };
-export type AssetFileType = (typeof ASSET_FILE_TYPES)[keyof typeof ASSET_FILE_TYPES];
+export type AssetFileType = keyof typeof ASSET_FILE_TYPES;
 
 /**
  * @constant ASSET_FILE_STATUS
@@ -37,7 +37,7 @@ export const ASSET_FILE_STATUS = {
   ready: "ready",
   failed: "failed",
 };
-export type AssetFileStatus = (typeof ASSET_FILE_STATUS)[keyof typeof ASSET_FILE_STATUS];
+export type AssetFileStatus = keyof typeof ASSET_FILE_STATUS;
 
 /**
  * @interface FileMetadata
@@ -59,14 +59,13 @@ export interface FileMetadata {
  * @description Image metadata
  */
 export interface ImageMetadata extends FileMetadata {
+  format: string;
   width: number;
   height: number;
-  colorSpace?: string; // e.g., "RGB", "CMYK"
-  colorDepth?: number; // bits per pixel
-  channels?: number;
-  dpi?: number;
-  compression?: string; // e.g., "JPEG", "PNG"
-  orientation?: string; // e.g., "portrait", "landscape"
+  colorSpace: string; // e.g., "RGB", "CMYK"
+  channels: number;
+  dpi?: number | undefined;
+  compression?: string | undefined; // e.g., "JPEG", "PNG"
 }
 
 /**
@@ -87,8 +86,34 @@ export interface VideoMetadata extends FileMetadata {
 
 export type AssetMetadata = FileMetadata | ImageMetadata | VideoMetadata;
 
+export interface Resolution {
+  name: string;
+  width: number;
+  height: number;
+}
+
+/**
+ * @constant RESOLUTIONS
+ * @description Available image resolutions
+ * - Important: The property key should be exaclty same as the name property of the Resolution object.
+ */
+export const RESOLUTIONS = {
+  HD: { name: "HD", width: 1280, height: 720 } as Resolution,
+  FHD: { name: "FHD", width: 1920, height: 1080 } as Resolution,
+};
+
+export type ResolutionNames = keyof typeof RESOLUTIONS;
+
+export interface BucketObject {
+  bucketName: string;
+  objectKey: string;
+  etag: string | undefined;
+}
+
 export interface StorageData {
-  [key: string]: string;
+  originalFile: BucketObject;
+  thumbnailPreviewFile: BucketObject;
+  processedFiles: Record<ResolutionNames, BucketObject>;
 }
 
 export interface SignedUrls {
@@ -109,9 +134,9 @@ export class AssetModel extends Model<InferAttributes<AssetModel>, InferCreation
   declare processingQueue: CreationOptional<string>;
   declare processingAttempts: CreationOptional<number>;
   declare lastError: CreationOptional<string>;
-  declare metadata: CreationOptional<Record<string, AssetMetadata>>;
-  declare storage: CreationOptional<Record<string, StorageData>>;
-  declare signedUrls: CreationOptional<Record<string, SignedUrls>>;
+  declare metadata: CreationOptional<AssetMetadata>;
+  declare storage: CreationOptional<StorageData>;
+  declare signedUrls: CreationOptional<SignedUrls>;
 }
 
 AssetModel.init(

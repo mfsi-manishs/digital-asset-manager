@@ -3,7 +3,9 @@
  * @fileoverview This file contains the asset service
  */
 
+import type { AssetFileType, AssetModel } from "../../models/asset.model.js";
 import { models } from "../../models/index.model.js";
+import { NotFoundError } from "../../utils/error.utils.js";
 
 /**
  * @class AssetService
@@ -23,7 +25,7 @@ export class AssetService {
    */
   static async create(
     userId: number,
-    data: { originalName: string; type: string; status: string; mimeType: string; size: number }
+    data: { originalName: string; type: AssetFileType; status: string; mimeType: string; size: number }
   ) {
     return await models.AssetModel.create({
       userId,
@@ -33,5 +35,24 @@ export class AssetService {
       mimeType: data.mimeType,
       size: data.size,
     });
+  }
+
+  static async update(userId: number, assetId: number, data: Partial<AssetModel>) {
+    const asset = await models.AssetModel.findOne({
+      where: { id: assetId, userId: userId },
+    });
+
+    if (!asset) {
+      throw new NotFoundError("Asset not found or unauthorized");
+    }
+
+    if (data.metadata) {
+      data.metadata = {
+        ...asset.metadata,
+        ...data.metadata,
+      };
+    }
+    await asset.update(data);
+    return asset.reload();
   }
 }
