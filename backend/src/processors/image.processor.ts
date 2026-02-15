@@ -4,20 +4,20 @@
  */
 
 import type { Job } from "bullmq";
+import ffmpegPath from "ffmpeg-static";
+import ffprobePath from "ffprobe-static";
+import ffmpeg from "fluent-ffmpeg";
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 import { BUCKET_NAMES, ensureBucket, minioClient } from "../config/minio.config.js";
 import { type BucketObject, type ImageMetadata, type ResolutionNames } from "../models/asset.model.js";
 import { AssetService } from "../modules/asset/asset.service.js";
-import type { QueueData } from "../modules/asset/asset.types.js";
-import { generateImageResolutions } from "../utils/image.utils.js";
+import type { ObjectMetadata, QueueData } from "../modules/asset/asset.types.js";
+import { ImageUtils } from "../utils/image.utils.js";
 
-export interface ObjectMetadata {
-  userId: string;
-  assetId: string;
-  [key: string]: string | number; // This allows the index signature required by MinIO
-}
+ffmpeg.setFfmpegPath(ffmpegPath as unknown as string);
+ffmpeg.setFfprobePath(ffprobePath.path);
 
 export default async function imageProcessor(job: Job<QueueData>) {
   const { filePath, userId, assetId } = job.data;
@@ -41,7 +41,7 @@ export default async function imageProcessor(job: Job<QueueData>) {
     await sharp(filePath).resize(200).toFile(thumbnailPath);
 
     // Generate various image resolutions
-    const generatedPaths = await generateImageResolutions(filePath);
+    const generatedPaths = await ImageUtils.generateImageResolutions(filePath);
 
     const objMetadata: ObjectMetadata = { userId: String(userId), assetId: String(assetId) };
 
@@ -96,7 +96,8 @@ export default async function imageProcessor(job: Job<QueueData>) {
     });
   } catch (error) {
     await AssetService.update(userId, assetId, { status: "failed" });
-    console.error(error);
+    console.error(`Error processing image: ${filePath}`, error);
+    throw error;
   }
 }
 

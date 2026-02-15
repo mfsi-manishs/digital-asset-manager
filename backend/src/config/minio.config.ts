@@ -16,7 +16,7 @@ export const minioClient = new Client({
 
 /**
  * Ensures that a given MinIO bucket exists.
- * If the bucket does not exist, it will be created with the given name in the "us-east-1" region.
+ * If the bucket does not exist, it will be created with the given name in the "ap-south-1" region.
  * @param {string} bucketName - The name of the bucket to ensure
  * @returns {Promise<void>} - A promise that resolves when the operation is complete
  */
@@ -29,7 +29,7 @@ export async function ensureBucket(bucketName: string) {
 
 /**
  * Initializes a list of MinIO buckets by ensuring each one exists.
- * If a bucket does not exist, it will be created with the given name in the "us-east-1" region.
+ * If a bucket does not exist, it will be created with the given name in the "ap-south-1" region.
  * @param {string[]} bucketNames - The list of bucket names to initialize
  * @returns {Promise<void>} - A promise that resolves when the operation is complete
  */

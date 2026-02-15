@@ -19,8 +19,11 @@ const imageProcessorUrl = pathToFileURL(imageProcessorPath);
 console.log(`Image processor script's URL: ${imageProcessorUrl}`);
 
 const imageWorker = new Worker(IMAGE_QUEUE_NAME, imageProcessorUrl, {
-  // useWorkerThreads: true, // Enables Node.js Worker Threads instead of child processes,
   connection: redisConnection,
+  lockDuration: 300000, // 300 seconds
+  stalledInterval: 30000, // Check for stalled jobs every 30 seconds
+  concurrency: 4, // How many child processes to run at once
+  useWorkerThreads: true, // Recommended for better performance in Node.js
 });
 
 imageWorker.on("active", () => {

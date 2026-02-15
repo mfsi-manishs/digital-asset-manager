@@ -73,15 +73,16 @@ export interface ImageMetadata extends FileMetadata {
  * @description Video metadata
  */
 export interface VideoMetadata extends FileMetadata {
-  duration: number; // in seconds
+  duration: number | undefined; // in seconds
   fps: number; // frames per second
-  resolution: { width: number; height: number };
-  codec: string; // e.g., "H.264", "HEVC"
-  bitrate?: number; // kbps
-  aspectRatio?: string; // e.g., "16:9"
-  audioChannels?: number; // e.g., 2 for stereo
+  width: number | undefined;
+  height: number | undefined;
+  codec: string | undefined; // e.g., "H.264", "HEVC"
+  bitrate?: number | undefined; // kbps
+  aspectRatio?: string | undefined; // e.g., "16:9"
+  audioChannels?: number | undefined; // e.g., 2 for stereo
   subtitleTracks?: string[]; // list of languages or track IDs
-  containerFormat: string; // e.g., "MP4", "MKV"
+  containerFormat: string | undefined; // e.g., "MP4", "MKV"
 }
 
 export type AssetMetadata = FileMetadata | ImageMetadata | VideoMetadata;

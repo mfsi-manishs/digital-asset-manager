@@ -14,8 +14,11 @@ const videoProcessorUrl = pathToFileURL(videoProcessorPath);
 console.log(`Video processor script's URL: ${videoProcessorUrl}`);
 
 const videoWorker = new Worker(VIDEO_QUEUE_NAME, videoProcessorUrl, {
-  // useWorkerThreads: true, // Enables Node.js Worker Threads instead of child processes,
   connection: redisConnection,
+  lockDuration: 300000, // 300 seconds
+  stalledInterval: 30000, // Check for stalled jobs every 30 seconds
+  concurrency: 4, // How many child processes to run at once
+  useWorkerThreads: true, // Recommended for better performance in Node.js
 });
 
 videoWorker.on("active", () => {
@@ -23,7 +26,7 @@ videoWorker.on("active", () => {
 });
 
 videoWorker.on("progress", (job) => {
-  console.log(`Video job ${job.id} in progress...`);
+  console.log(`Video job ${job.id} in progress: ${job?.progress}%`);
 });
 
 videoWorker.on("failed", (job, err) => {

@@ -32,6 +32,8 @@ Also ensure that the Redis server and MinIO is installed and running.
   > > -v E:\ProjectsWorkspace\DB\minio:/data \
   > > quay.io/minio/minio server /data --console-address ":9001"
 
+For video processing ffmpeg is used. Install the application on the OS and add bin folder to the PATH environment variable.
+
 ### For production:
 
 - Database setup using migrations
