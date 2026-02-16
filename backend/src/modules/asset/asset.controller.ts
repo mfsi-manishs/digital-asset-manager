@@ -4,12 +4,12 @@
  */
 
 import type { Request, Response } from "express";
-import { ASSET_FILE_STATUS, ASSET_FILE_TYPES, type AssetFileType } from "../../models/asset.model.js";
-import { imageQueue } from "../../services/imageQueue.service.js";
-import { videoQueue } from "../../services/videoQueue.service.js";
+import { imageQueue } from "../../packages/shared/queue/imageQueue.service.js";
+import { videoQueue } from "../../packages/shared/queue/videoQueue.service.js";
 import type { UploadResDTO } from "./asset.schema.js";
 import { AssetService } from "./asset.service.js";
 import { type QueueData } from "./asset.types.js";
+import { ASSET_FILE_STATUS, ASSET_FILE_TYPES, type AssetFileType } from "../../packages/shared/types/asset.type.js";
 
 /**
  * @class AssetController

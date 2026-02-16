@@ -3,8 +3,9 @@
  * @fileoverview This file contains the asset service
  */
 
-import type { AssetFileType, AssetModel } from "../../models/asset.model.js";
+import type { AssetModel } from "../../models/asset.model.js";
 import { models } from "../../models/index.model.js";
+import type { AssetFileType } from "../../packages/shared/types/asset.type.js";
 import { NotFoundError } from "../../utils/error.utils.js";
 
 /**

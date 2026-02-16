@@ -4,7 +4,7 @@
  * instance. NOTE: This sequelize instance must be used in other files to access the database.
  */
 
-import { sequelize } from "../config/db.config.js";
+import { sequelize } from "../packages/shared/db/db.config.js";
 import { UserModel } from "./user.model.js";
 import { RefreshTokenModel } from "./refreshToken.model.js";
 import { PasswordResetModel } from "./passwordReset.model.js";

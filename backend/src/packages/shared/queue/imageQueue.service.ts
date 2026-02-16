@@ -4,7 +4,7 @@
  */
 
 import { Queue } from "bullmq";
-import { redisConnection } from "../config/redis.config.js";
+import { redisConnection } from "./redis.config.js";
 
 export const IMAGE_QUEUE_NAME = "imageQueue";
 

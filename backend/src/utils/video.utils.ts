@@ -5,7 +5,7 @@
 
 import ffmpeg from "fluent-ffmpeg";
 import path from "path";
-import { RESOLUTIONS, type ResolutionNames } from "../models/asset.model.js";
+import { RESOLUTIONS, type ResolutionNames } from "../packages/shared/types/asset.type.js";
 
 /**
  * @class VideoUtils

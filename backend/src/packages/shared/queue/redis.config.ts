@@ -4,7 +4,7 @@
  */
 
 import { type RedisOptions } from "ioredis";
-import { env } from "../env.js";
+import { env } from "../../../env.js";
 
 export const redisConnection: RedisOptions = {
   host: env.redis.host,

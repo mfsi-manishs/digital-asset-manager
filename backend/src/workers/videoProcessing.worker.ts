@@ -1,8 +1,8 @@
 import { Worker } from "bullmq";
 import path from "path";
 import { pathToFileURL } from "url";
-import { redisConnection } from "../config/redis.config.js";
-import { VIDEO_QUEUE_NAME } from "../services/videoQueue.service.js";
+import { redisConnection } from "../packages/shared/queue/redis.config.js";
+import { VIDEO_QUEUE_NAME } from "../packages/shared/queue/videoQueue.service.js";
 import { __dirname } from "../utils/file.utils.js";
 
 console.log("Starting video worker...");

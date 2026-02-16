@@ -5,7 +5,7 @@
 
 import path from "path";
 import sharp from "sharp";
-import { RESOLUTIONS, type ResolutionNames } from "../models/asset.model.js";
+import { RESOLUTIONS, type ResolutionNames } from "../packages/shared/types/asset.type.js";
 
 /**
  * @class ImageUtils

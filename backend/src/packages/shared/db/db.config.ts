@@ -4,14 +4,14 @@
  */
 
 import { Sequelize } from "sequelize";
-import { env } from "../env.js";
+import { getEnv } from "../shared.env.js";
 
 // Initialize Sequelize and use it to connect to the database
-export const sequelize = new Sequelize(env.db.database, env.db.username, env.db.password, {
-  host: env.db.host,
-  port: env.db.port,
-  dialect: env.db.dialect,
-  logging: env.db.logging ? console.log : false,
+export const sequelize = new Sequelize(getEnv().db.database, getEnv().db.username, getEnv().db.password, {
+  host: getEnv().db.host,
+  port: getEnv().db.port,
+  dialect: getEnv().db.dialect,
+  logging: getEnv().db.logging ? console.log : false,
   pool: {
     max: 10, // max connections
     min: 0, // min connections
@@ -20,7 +20,7 @@ export const sequelize = new Sequelize(env.db.database, env.db.username, env.db.
   },
   timezone: "+00:00",
   dialectOptions: {
-    ssl: env.nodeEnv === "production" ? { require: true, rejectUnauthorized: false } : false,
+    ssl: getEnv().nodeEnv === "production" ? { require: true, rejectUnauthorized: false } : false,
     useUTC: true,
   },
 });

@@ -9,10 +9,10 @@ import ffprobePath from "ffprobe-static";
 import ffmpeg, { type FfprobeData } from "fluent-ffmpeg";
 import fs from "fs";
 import path from "path";
-import { BUCKET_NAMES, ensureBucket, minioClient } from "../config/minio.config.js";
-import type { BucketObject, ResolutionNames, VideoMetadata } from "../models/asset.model.js";
 import { AssetService } from "../modules/asset/asset.service.js";
 import type { ObjectMetadata, QueueData } from "../modules/asset/asset.types.js";
+import { BUCKET_NAMES, ensureBucket, minioClient } from "../packages/shared/minio/minio.config.js";
+import type { BucketObject, ResolutionNames, VideoMetadata } from "../packages/shared/types/asset.type.js";
 import { VideoUtils } from "../utils/video.utils.js";
 
 ffmpeg.setFfmpegPath(ffmpegPath as unknown as string);

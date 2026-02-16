@@ -10,10 +10,10 @@ import ffmpeg from "fluent-ffmpeg";
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
-import { BUCKET_NAMES, ensureBucket, minioClient } from "../config/minio.config.js";
-import { type BucketObject, type ImageMetadata, type ResolutionNames } from "../models/asset.model.js";
 import { AssetService } from "../modules/asset/asset.service.js";
 import type { ObjectMetadata, QueueData } from "../modules/asset/asset.types.js";
+import { BUCKET_NAMES, ensureBucket, minioClient } from "../packages/shared/minio/minio.config.js";
+import type { BucketObject, ImageMetadata, ResolutionNames } from "../packages/shared/types/asset.type.js";
 import { ImageUtils } from "../utils/image.utils.js";
 
 ffmpeg.setFfmpegPath(ffmpegPath as unknown as string);
