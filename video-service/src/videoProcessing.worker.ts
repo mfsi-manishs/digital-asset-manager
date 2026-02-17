@@ -1,20 +1,25 @@
-import { Worker } from "bullmq";
+/**
+ * @file videoProcessing.worker.ts
+ * @fileoverview This file contains the video processing worker
+ */
+
+import { redisConnection } from "@digital-asset-manager/shared";
+import { VIDEO_QUEUE_NAME } from "@digital-asset-manager/shared";
+import { getLocalDirPath } from "@digital-asset-manager/shared";
+import { Worker, type ConnectionOptions } from "bullmq";
 import path from "path";
 import { pathToFileURL } from "url";
-import { redisConnection } from "../packages/shared/queue/redis.config.js";
-import { VIDEO_QUEUE_NAME } from "../packages/shared/queue/videoQueue.service.js";
-import { __dirname } from "../utils/file.utils.js";
 
 console.log("Starting video worker...");
 
 // Point to the COMPILED .js file in dist/build folder
-const videoProcessorPath = path.join(__dirname, "../processors/video.processor.js");
+const videoProcessorPath = path.join(getLocalDirPath(import.meta.url), "../video.processor.js");
 const videoProcessorUrl = pathToFileURL(videoProcessorPath);
 
 console.log(`Video processor script's URL: ${videoProcessorUrl}`);
 
 const videoWorker = new Worker(VIDEO_QUEUE_NAME, videoProcessorUrl, {
-  connection: redisConnection,
+  connection: redisConnection as ConnectionOptions,
   lockDuration: 300000, // 300 seconds
   stalledInterval: 30000, // Check for stalled jobs every 30 seconds
   concurrency: 4, // How many child processes to run at once

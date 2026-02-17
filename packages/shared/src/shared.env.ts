@@ -10,6 +10,16 @@ export const getEnv = () => {
       dialect: "postgres" as const, // or "mysql" | "mariadb" | "sqlite" | "mssql"
       logging: process.env.DB_LOGGING === "true",
     },
+    redis: {
+      host: process.env.REDIS_HOST || "localhost",
+      port: Number(process.env.REDIS_PORT) || 6379,
+    },
+    minio: {
+      host: process.env.MINIO_HOST || "localhost",
+      port: Number(process.env.MINIO_PORT) || 9000,
+      username: required("MINIO_ROOT_USER"),
+      password: required("MINIO_ROOT_PASSWORD"),
+    },
   };
 
   function required(key: string): string {

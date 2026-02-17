@@ -3,9 +3,9 @@
  * @fileoverview This file contains the video utils
  */
 
+import { RESOLUTIONS, type ResolutionNames } from "@digital-asset-manager/shared";
 import ffmpeg from "fluent-ffmpeg";
 import path from "path";
-import { RESOLUTIONS, type ResolutionNames } from "../packages/shared/types/asset.type.js";
 
 /**
  * @class VideoUtils

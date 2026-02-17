@@ -3,13 +3,12 @@
  * @fileoverview This file contains the asset controller
  */
 
+import { imageQueue } from "@digital-asset-manager/shared";
+import { videoQueue } from "@digital-asset-manager/shared";
+import { ASSET_FILE_STATUS, ASSET_FILE_TYPES, type AssetFileType, type QueueData } from "@digital-asset-manager/shared";
 import type { Request, Response } from "express";
-import { imageQueue } from "../../packages/shared/queue/imageQueue.service.js";
-import { videoQueue } from "../../packages/shared/queue/videoQueue.service.js";
 import type { UploadResDTO } from "./asset.schema.js";
 import { AssetService } from "./asset.service.js";
-import { type QueueData } from "./asset.types.js";
-import { ASSET_FILE_STATUS, ASSET_FILE_TYPES, type AssetFileType } from "../../packages/shared/types/asset.type.js";
 
 /**
  * @class AssetController

@@ -5,7 +5,7 @@
 
 import path from "path";
 import swaggerJSDoc from "swagger-jsdoc";
-import { __dirname } from "../utils/file.utils.js";
+import { getLocalDirPath } from "@digital-asset-manager/shared";
 
 const swaggerDefinition = {
   openapi: "3.0.0",
@@ -108,8 +108,8 @@ const swaggerDefinition = {
 };
 
 const routesGlob = [
-  path.join(__dirname, "../modules/**/*.route.{ts,js}"),
-  path.join(__dirname, "../routes/**/*.route.{ts,js}"),
+  path.join(getLocalDirPath(import.meta.url), "../modules/**/*.route.{ts,js}"),
+  path.join(getLocalDirPath(import.meta.url), "../routes/**/*.route.{ts,js}"),
 ];
 
 console.log("Swagger will load routes from:", routesGlob);

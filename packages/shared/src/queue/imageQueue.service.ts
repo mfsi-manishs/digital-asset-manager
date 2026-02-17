@@ -3,11 +3,11 @@
  * @fileoverview This file contains the image queue service
  */
 
-import { Queue } from "bullmq";
+import { Queue, type ConnectionOptions } from "bullmq";
 import { redisConnection } from "./redis.config.js";
 
 export const IMAGE_QUEUE_NAME = "imageQueue";
 
 export const imageQueue = new Queue(IMAGE_QUEUE_NAME, {
-  connection: redisConnection,
+  connection: redisConnection as ConnectionOptions,
 });

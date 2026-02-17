@@ -4,16 +4,13 @@
  */
 
 import app from "./app.js";
-import { sequelize } from "./models/index.model.js";
 import { env } from "./env.js";
+import { sequelize } from "./models/index.model.js";
 
 const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log("Database connection established successfully.");
-
-    // Sync models (use migrations in production, not sync)
-    // await sequelize.sync({ alter: env.nodeEnv === "development" });
 
     app.listen(env.port, () => {
       console.log(`Server running on port ${env.port}...`);

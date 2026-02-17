@@ -11,7 +11,7 @@ import {
   type InferAttributes,
   type InferCreationAttributes,
 } from "sequelize";
-import { sequelize } from "../packages/shared/db/db.config.js";
+import { sequelize } from "../config/db.config.js";
 import { UserModel } from "./user.model.js";
 
 export class RefreshTokenModel extends Model<

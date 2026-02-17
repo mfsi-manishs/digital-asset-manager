@@ -5,7 +5,7 @@
 
 import path from "path";
 import sharp from "sharp";
-import { RESOLUTIONS, type ResolutionNames } from "../packages/shared/types/asset.type.js";
+import { RESOLUTIONS, type ResolutionNames } from "@digital-asset-manager/shared";
 
 /**
  * @class ImageUtils

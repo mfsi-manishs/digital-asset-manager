@@ -1,0 +1,23 @@
+{
+  "name": "@digital-asset-manager/image-service",
+  "version": "1.0.0",
+  "description": "A microservice for processing images.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx --env-file=../.env watch src/index.ts",
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "start": "node --env-file=../.env dist/index.js",
+    "prod": "npm run build && npm start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@digital-asset-manager/shared": "*",
+    "bullmq": "^5.69.3",
+    "ioredis": "^5.9.3"
+  }
+}

@@ -3,17 +3,21 @@
  * @fileoverview This file contains the video processor
  */
 
+import type {
+  BucketObject,
+  ObjectMetadata,
+  QueueData,
+  ResolutionNames,
+  VideoMetadata,
+} from "@digital-asset-manager/shared";
+import { BUCKET_NAMES, ensureBucket, minioClient } from "@digital-asset-manager/shared";
 import type { Job } from "bullmq";
 import ffmpegPath from "ffmpeg-static";
 import ffprobePath from "ffprobe-static";
 import ffmpeg, { type FfprobeData } from "fluent-ffmpeg";
 import fs from "fs";
 import path from "path";
-import { AssetService } from "../modules/asset/asset.service.js";
-import type { ObjectMetadata, QueueData } from "../modules/asset/asset.types.js";
-import { BUCKET_NAMES, ensureBucket, minioClient } from "../packages/shared/minio/minio.config.js";
-import type { BucketObject, ResolutionNames, VideoMetadata } from "../packages/shared/types/asset.type.js";
-import { VideoUtils } from "../utils/video.utils.js";
+import { VideoUtils } from "./video.utils.js";
 
 ffmpeg.setFfmpegPath(ffmpegPath as unknown as string);
 ffmpeg.setFfprobePath(ffprobePath.path);
@@ -23,7 +27,7 @@ export default async function videoProcessor(job: Job<QueueData>) {
   try {
     console.log(`Processing image: ${filePath}`);
 
-    await AssetService.update(userId, assetId, { status: "processing" });
+    // await AssetService.update(userId, assetId, { status: "processing" });// TODO: update status via web service or queue
 
     // Example: check file exists
     if (!fs.existsSync(filePath)) {
@@ -76,26 +80,48 @@ export default async function videoProcessor(job: Job<QueueData>) {
       };
     }
 
+    // TODO: remove this when added code to update status via web service or queue
+    console.log(
+      JSON.stringify({
+        status: "ready",
+        metadata: videoMetadata,
+        storage: {
+          originalFile: {
+            bucketName: BUCKET_NAMES.damvideos,
+            objectKey: filePath,
+            etag: etagOriginal,
+          },
+          thumbnailPreviewFile: {
+            bucketName: BUCKET_NAMES.damvideos,
+            objectKey: previewPath,
+            etag: etagPreview,
+          },
+          processedFiles,
+        },
+      })
+    );
+
+    // TODO: update status via web service or queue
     // Update asset in database
-    await AssetService.update(userId, assetId, {
-      status: "ready",
-      metadata: videoMetadata,
-      storage: {
-        originalFile: {
-          bucketName: BUCKET_NAMES.damvideos,
-          objectKey: filePath,
-          etag: etagOriginal,
-        },
-        thumbnailPreviewFile: {
-          bucketName: BUCKET_NAMES.damvideos,
-          objectKey: previewPath,
-          etag: etagPreview,
-        },
-        processedFiles,
-      },
-    });
+    // await AssetService.update(userId, assetId, {
+    //   status: "ready",
+    //   metadata: videoMetadata,
+    //   storage: {
+    //     originalFile: {
+    //       bucketName: BUCKET_NAMES.damvideos,
+    //       objectKey: filePath,
+    //       etag: etagOriginal,
+    //     },
+    //     thumbnailPreviewFile: {
+    //       bucketName: BUCKET_NAMES.damvideos,
+    //       objectKey: previewPath,
+    //       etag: etagPreview,
+    //     },
+    //     processedFiles,
+    //   },
+    // });
   } catch (error) {
-    await AssetService.update(userId, assetId, { status: "failed" });
+    // await AssetService.update(userId, assetId, { status: "failed" });// TODO: update status via web service or queue
     console.error(`Error processing video: ${filePath}`, error);
     throw error;
   }

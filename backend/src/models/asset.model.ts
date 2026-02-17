@@ -4,15 +4,6 @@
  */
 
 import {
-  DataTypes,
-  Model,
-  Sequelize,
-  type CreationOptional,
-  type InferAttributes,
-  type InferCreationAttributes,
-} from "sequelize";
-import { sequelize } from "../packages/shared/db/db.config.js";
-import {
   ASSET_FILE_STATUS,
   ASSET_FILE_TYPES,
   type AssetFileStatus,
@@ -20,7 +11,16 @@ import {
   type AssetMetadata,
   type SignedUrls,
   type StorageData,
-} from "../packages/shared/types/asset.type.js";
+} from "@digital-asset-manager/shared";
+import {
+  DataTypes,
+  Model,
+  Sequelize,
+  type CreationOptional,
+  type InferAttributes,
+  type InferCreationAttributes,
+} from "sequelize";
+import { sequelize } from "../config/db.config.js";
 import { UserModel } from "./user.model.js";
 
 export class AssetModel extends Model<InferAttributes<AssetModel>, InferCreationAttributes<AssetModel>> {

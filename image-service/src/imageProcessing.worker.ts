@@ -3,23 +3,23 @@
  * @fileoverview This file contains the image processing worker
  */
 
-import { Worker } from "bullmq";
+import { IMAGE_QUEUE_NAME } from "@digital-asset-manager/shared";
+import { redisConnection } from "@digital-asset-manager/shared";
+import { getLocalDirPath } from "@digital-asset-manager/shared";
+import { Worker, type ConnectionOptions } from "bullmq";
 import path from "path";
 import { pathToFileURL } from "url";
-import { redisConnection } from "../packages/shared/queue/redis.config.js";
-import { IMAGE_QUEUE_NAME } from "../packages/shared/queue/imageQueue.service.js";
-import { __dirname } from "../utils/file.utils.js";
 
 console.log("Starting image worker...");
 
 // Point to the COMPILED .js file in dist/build folder
-const imageProcessorPath = path.join(__dirname, "../processors/image.processor.js");
+const imageProcessorPath = path.join(getLocalDirPath(import.meta.url), "../image.processor.js");
 const imageProcessorUrl = pathToFileURL(imageProcessorPath);
 
 console.log(`Image processor script's URL: ${imageProcessorUrl}`);
 
 const imageWorker = new Worker(IMAGE_QUEUE_NAME, imageProcessorUrl, {
-  connection: redisConnection,
+  connection: redisConnection as ConnectionOptions,
   lockDuration: 300000, // 300 seconds
   stalledInterval: 30000, // Check for stalled jobs every 30 seconds
   concurrency: 4, // How many child processes to run at once

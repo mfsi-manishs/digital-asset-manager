@@ -4,8 +4,9 @@
  */
 
 import dotenv from "dotenv";
+import { getLocalDirPath } from "@digital-asset-manager/shared";
 
-dotenv.config();
+dotenv.config({ path: `${getLocalDirPath(import.meta.url)}/../.env` });
 
 export const env = {
   nodeEnv: process.env.NODE_ENV || "development",

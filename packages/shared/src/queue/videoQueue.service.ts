@@ -3,11 +3,11 @@
  * @fileoverview This file contains the video queue service
  */
 
-import { Queue } from "bullmq";
+import { Queue, type ConnectionOptions } from "bullmq";
 import { redisConnection } from "./redis.config.js";
 
 export const VIDEO_QUEUE_NAME = "videoQueue";
 
 export const videoQueue = new Queue(VIDEO_QUEUE_NAME, {
-  connection: redisConnection,
+  connection: redisConnection as ConnectionOptions,
 });

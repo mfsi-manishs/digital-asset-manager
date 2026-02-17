@@ -4,14 +4,14 @@
  */
 
 import { Client } from "minio";
-import { env } from "../../../env.js";
+import { getEnv } from "../shared.env.js";
 
 export const minioClient = new Client({
-  endPoint: env.minio.host || "localhost",
-  port: env.minio.port || 9000,
+  endPoint: getEnv().minio.host || "localhost",
+  port: getEnv().minio.port || 9000,
   useSSL: false,
-  accessKey: env.minio.username || "admin",
-  secretKey: env.minio.password || "password123",
+  accessKey: getEnv().minio.username || "admin",
+  secretKey: getEnv().minio.password || "password123",
 });
 
 /**

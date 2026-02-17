@@ -14,12 +14,12 @@ import assetRoutes from "./modules/asset/asset.route.js";
 import authRoutes from "./modules/auth/auth.route.js";
 import userRoutes from "./modules/user/user.route.js";
 import { NotFoundError } from "./utils/error.utils.js";
-import { __dirname, ensureDirExists } from "./utils/file.utils.js";
+import { getLocalDirPath, ensureDirExists } from "@digital-asset-manager/shared";
 
 const app = express();
 
 const isDevelopment = env.nodeEnv === "development";
-ensureDirExists(path.join(__dirname, "../uploads"));
+ensureDirExists(path.join(getLocalDirPath(import.meta.url), "../uploads"));
 
 // Security Headers (Always first)
 app.use(
