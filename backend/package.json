@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "generate:api-keys": "tsx scripts/createApiKeys.ts",
     "dev": "tsx --env-file=../.env watch src/server.ts",
-    "build": "tsc",
-    "clean": "rimraf dist",
+    "build": "tsc --build --verbose",
+    "clean": "tsc --build --clean",
     "start": "node --env-file=../.env dist/server.js",
     "prod": "npm run build && npm start"
   },
@@ -54,6 +55,7 @@
     "@types/multer": "^2.0.0",
     "@types/node": "^25.2.0",
     "@types/nodemailer": "^7.0.9",
+    "@types/pg": "^8.16.0",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "ts-node": "^10.9.2"

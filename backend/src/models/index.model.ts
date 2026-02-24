@@ -5,10 +5,11 @@
  */
 
 import { sequelize } from "../config/db.config.js";
-import { UserModel } from "./user.model.js";
-import { RefreshTokenModel } from "./refreshToken.model.js";
-import { PasswordResetModel } from "./passwordReset.model.js";
+import { ApiKeyModel } from "./apiKey.model.js";
 import { AssetModel } from "./asset.model.js";
+import { PasswordResetModel } from "./passwordReset.model.js";
+import { RefreshTokenModel } from "./refreshToken.model.js";
+import { UserModel } from "./user.model.js";
 
 /**
  * @constant models
@@ -19,6 +20,7 @@ export const models = {
   RefreshTokenModel,
   PasswordResetModel,
   AssetModel,
+  ApiKeyModel,
 };
 
 // associations

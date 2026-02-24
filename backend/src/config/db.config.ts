@@ -3,8 +3,17 @@
  * @fileoverview This file contains the database configuration
  */
 
+import pg from "pg";
 import { Sequelize } from "sequelize";
 import { env } from "../env.js";
+
+// Force BIGINT (OID 20) to be parsed as a Number. This must run before any queries are executed
+// JavaScript’s Number type has a maximum safe integer value of 2^53-1 (9,007,199,254,740,991). A PostgreSQL BIGINT can store up to 2^63-1
+// To prevent data loss or precision errors for extremely large numbers (like file sizes in bytes for a Digital Asset Manager),
+// the pg driver returns BIGINT values as strings by default.
+pg.types.setTypeParser(20, (val: string) => {
+  return parseInt(val, 10);
+});
 
 // Initialize Sequelize and use it to connect to the database
 export const sequelize = new Sequelize(env.db.database, env.db.username, env.db.password, {

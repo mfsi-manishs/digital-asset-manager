@@ -4,30 +4,42 @@
  */
 
 import type {
+  AssetFileStatus,
   BucketObject,
   ObjectMetadata,
   QueueData,
   ResolutionNames,
   VideoMetadata,
 } from "@digital-asset-manager/shared";
-import { BUCKET_NAMES, ensureBucket, minioClient } from "@digital-asset-manager/shared";
+import {
+  ASSET_FILE_STATUS,
+  BUCKET_NAMES,
+  ensureBucket,
+  getDownloadDirPath,
+  minioClient,
+} from "@digital-asset-manager/shared";
 import type { Job } from "bullmq";
 import ffmpegPath from "ffmpeg-static";
 import ffprobePath from "ffprobe-static";
 import ffmpeg, { type FfprobeData } from "fluent-ffmpeg";
 import fs from "fs";
 import path from "path";
+import { v4 as uuid } from "uuid";
+import { VideoService } from "./video.service.js";
 import { VideoUtils } from "./video.utils.js";
 
 ffmpeg.setFfmpegPath(ffmpegPath as unknown as string);
 ffmpeg.setFfprobePath(ffprobePath.path);
 
 export default async function videoProcessor(job: Job<QueueData>) {
-  const { filePath, userId, assetId } = job.data;
+  const { bucketName, objectKey, userId, assetId, originalName } = job.data;
+  const dirPath = getDownloadDirPath(import.meta.url);
+  const filePath = path.join(dirPath, originalName);
   try {
-    console.log(`Processing image: ${filePath}`);
+    await minioClient.fGetObject(bucketName, objectKey, filePath);
+    console.log(`Processing video: ${filePath}`);
 
-    // await AssetService.update(userId, assetId, { status: "processing" });// TODO: update status via web service or queue
+    await VideoService.updateAsset(userId, assetId, ASSET_FILE_STATUS.processing as AssetFileStatus);
 
     // Example: check file exists
     if (!fs.existsSync(filePath)) {
@@ -51,18 +63,11 @@ export default async function videoProcessor(job: Job<QueueData>) {
 
     await ensureBucket(BUCKET_NAMES.damvideos);
 
-    // Upload original file to MinIO
-    const { etag: etagOriginal } = await minioClient.fPutObject(
-      BUCKET_NAMES.damvideos,
-      filePath,
-      filePath,
-      objMetadata
-    );
-
     // Upload thumbnail file to MinIO
+    const previewObjKey = `processed/${uuid()}-${path.basename(previewPath)}`;
     const { etag: etagPreview } = await minioClient.fPutObject(
       BUCKET_NAMES.damvideos,
-      previewPath,
+      previewObjKey,
       previewPath,
       objMetadata
     );
@@ -71,57 +76,29 @@ export default async function videoProcessor(job: Job<QueueData>) {
 
     // Upload processed files
     for (const [resolution, filePath] of Object.entries(generatedPaths) as [ResolutionNames, string][]) {
-      const { etag } = await minioClient.fPutObject(BUCKET_NAMES.damvideos, filePath, filePath, objMetadata);
+      const objKey = `processed/${uuid()}-${path.basename(filePath)}`;
+      const { etag } = await minioClient.fPutObject(BUCKET_NAMES.damvideos, objKey, filePath, objMetadata);
 
       processedFiles[resolution] = {
         bucketName: BUCKET_NAMES.damvideos,
-        objectKey: filePath,
+        objectKey: objKey,
         etag,
       };
     }
 
-    // TODO: remove this when added code to update status via web service or queue
-    console.log(
-      JSON.stringify({
-        status: "ready",
-        metadata: videoMetadata,
-        storage: {
-          originalFile: {
-            bucketName: BUCKET_NAMES.damvideos,
-            objectKey: filePath,
-            etag: etagOriginal,
-          },
-          thumbnailPreviewFile: {
-            bucketName: BUCKET_NAMES.damvideos,
-            objectKey: previewPath,
-            etag: etagPreview,
-          },
-          processedFiles,
+    await VideoService.updateAsset(userId, assetId, ASSET_FILE_STATUS.ready as AssetFileStatus, {
+      metadata: videoMetadata,
+      storage: {
+        thumbnailPreviewFile: {
+          bucketName: BUCKET_NAMES.damvideos,
+          objectKey: previewObjKey,
+          etag: etagPreview,
         },
-      })
-    );
-
-    // TODO: update status via web service or queue
-    // Update asset in database
-    // await AssetService.update(userId, assetId, {
-    //   status: "ready",
-    //   metadata: videoMetadata,
-    //   storage: {
-    //     originalFile: {
-    //       bucketName: BUCKET_NAMES.damvideos,
-    //       objectKey: filePath,
-    //       etag: etagOriginal,
-    //     },
-    //     thumbnailPreviewFile: {
-    //       bucketName: BUCKET_NAMES.damvideos,
-    //       objectKey: previewPath,
-    //       etag: etagPreview,
-    //     },
-    //     processedFiles,
-    //   },
-    // });
+        processedFiles,
+      },
+    });
   } catch (error) {
-    // await AssetService.update(userId, assetId, { status: "failed" });// TODO: update status via web service or queue
+    await VideoService.updateAsset(userId, assetId, ASSET_FILE_STATUS.failed as AssetFileStatus);
     console.error(`Error processing video: ${filePath}`, error);
     throw error;
   }
@@ -148,7 +125,6 @@ const toVideoMetadata = (
     fileName: jobData.originalName,
     fileSize: jobData.fileSize,
     fileType: ext,
-    filePath: jobData.filePath,
     dateCreated: ctime,
     dateModified: mtime,
     mimeType: jobData.mimeType,

@@ -34,7 +34,7 @@ module.exports = {
         allowNull: false,
       },
       status: {
-        type: Sequelize.ENUM("uploaded", "processing", "ready", "failed"),
+        type: Sequelize.ENUM("pending", "uploading", "uploaded", "processing", "ready", "failed"),
         defaultValue: "uploaded",
         allowNull: false,
       },
@@ -45,7 +45,6 @@ module.exports = {
       },
       size: {
         type: Sequelize.BIGINT,
-        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,

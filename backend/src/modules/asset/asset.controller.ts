@@ -3,11 +3,17 @@
  * @fileoverview This file contains the asset controller
  */
 
-import { imageQueue } from "@digital-asset-manager/shared";
-import { videoQueue } from "@digital-asset-manager/shared";
-import { ASSET_FILE_STATUS, ASSET_FILE_TYPES, type AssetFileType, type QueueData } from "@digital-asset-manager/shared";
 import type { Request, Response } from "express";
-import type { UploadResDTO } from "./asset.schema.js";
+import {
+  updateAssetResSchema,
+  uploadResSchema,
+  uploadUrlResSchema,
+  type UpdateAssetInternalReqParams,
+  type UpdateAssetReqBody,
+  type UpdateAssetReqParams,
+  type UploadConfirmReqBody,
+  type UploadUrlReqBody,
+} from "./asset.schema.js";
 import { AssetService } from "./asset.service.js";
 
 /**
@@ -16,70 +22,64 @@ import { AssetService } from "./asset.service.js";
  */
 export class AssetController {
   /**
-   * Uploads multiple files to the server and creates corresponding corresponding Asset records
-   * in the database. The actual processing of the files is done in the background
-   * using a message queue (BullMQ).
-   * @param {Request} req - Express request object
-   * @param {Response} res - Express response object
-   * @returns {Promise<void>}
+   * Updates an asset in the database.
+   * @param {Request<UpdateAssetReqParams, object, UpdateAssetReqBody>} req - The request object
+   * @param {Response} res - The response object
+   * @returns {Promise<void>} The promise that resolves when the asset is updated
+   * @throws {BadRequestError} If the assetId or userId is missing or invalid
+   * @throws {InternalServerError} If unable to update asset
    */
-  static async upload(req: Request, res: Response) {
-    if (!req.files || !(req.files instanceof Array)) {
-      res.status(400).json({ error: "No files uploaded" });
-      return;
-    }
+  static async updateAsset(req: Request<UpdateAssetReqParams, object, UpdateAssetReqBody>, res: Response) {
+    const resData = await AssetService.update(req.user!.id, req.params.id, req.body);
+    const validatedResData = updateAssetResSchema.parse(resData);
+    res.json(validatedResData);
+  }
 
-    const files = req.files as Express.Multer.File[];
-    const results: UploadResDTO[] = [];
+  /**
+   * Updates an asset in the database.
+   * @param {Request<UpdateAssetInternalReqParams, object, UpdateAssetReqBody>} req - The request object
+   * @param {Response} res - The response object
+   * @returns {Promise<void>} The promise that resolves when the asset is updated
+   * @throws {BadRequestError} If the assetId or userId is missing or invalid
+   * @throws {InternalServerError} If unable to update asset
+   * @description This function is used to update an asset in the database. It takes the userId and assetId as params, and the body of the request contains the data to be updated.
+   */
+  static async updateAssetInternal(
+    req: Request<UpdateAssetInternalReqParams, object, UpdateAssetReqBody>,
+    res: Response
+  ) {
+    const resData = await AssetService.update(req.params.userId, req.params.id, req.body);
+    const validatedResData = updateAssetResSchema.parse(resData);
+    res.json(validatedResData);
+  }
 
-    for (const file of files) {
-      const filePath = file.path;
-      const mimeType = file.mimetype;
-      const originalName = file.originalname;
-      const size = file.size;
-      const status = ASSET_FILE_STATUS.uploaded;
+  /**
+   * Uploads a file to the server and creates an Asset record in the database.
+   * The actual processing of the file is done in the background using a message queue (BullMQ).
+   * @param {Request<object, object, UploadUrlReqBody>} req - The express request object
+   * @param {Response} res - The express response object
+   * @returns {Promise<void>} The promise that resolves when the asset is created
+   * @throws {BadRequestError} If the userId or assetId is missing or invalid
+   * @throws {InternalServerError} If unable to create asset
+   */
+  static async uploadUrl(req: Request<object, object, UploadUrlReqBody>, res: Response) {
+    const resData = await AssetService.uploadUrl(req.user!.id, req.body);
+    const validatedResData = uploadUrlResSchema.parse(resData);
+    res.json(validatedResData);
+  }
 
-      const type = mimeType.split("/")[0];
-      const qData: QueueData = {
-        assetId: 0, //.must be replace with actual one after creation in db.
-        userId: req.user!.id,
-        originalName,
-        mimeType,
-        fileSize: size,
-        filePath,
-      };
-      if (type?.match(/image/i)) {
-        const asset = await AssetService.create(req.user!.id, {
-          originalName,
-          type: ASSET_FILE_TYPES.image as AssetFileType,
-          status,
-          mimeType,
-          size,
-        });
-        qData.assetId = asset.id;
-        await imageQueue.add(`processImage-${asset.id}-${originalName}`, qData);
-        results.push({ assetId: asset.id, filename: originalName, mimeType, status: "queued" });
-      } else if (type?.match(/video/i)) {
-        const asset = await AssetService.create(req.user!.id, {
-          originalName,
-          type: ASSET_FILE_TYPES.video as AssetFileType,
-          status,
-          mimeType,
-          size,
-        });
-        qData.assetId = asset.id;
-        await videoQueue.add(`processVideo-${asset.id}-${originalName}`, qData);
-        results.push({ assetId: asset.id, filename: originalName, mimeType, status: "queued" });
-      } else {
-        results.push({
-          filename: originalName,
-          mimeType,
-          status: "failed",
-          message: "Unsupported file type",
-        });
-      }
-    }
-
-    return res.json(results);
+  /**
+   * Confirms the upload of an asset to the server.
+   * @param {Request<object, object, UploadConfirmReqBody>} req - The express request object
+   * @param {Response} res - The express response object
+   * @returns {Promise<void>} The promise that resolves when the asset is confirmed
+   * @throws {BadRequestError} If the userId or assetId is missing or invalid
+   * @throws {InternalServerError} If unable to confirm asset
+   * @description This function is used to confirm an asset has been uploaded to the server. It takes the userId and assetId as params, and the body of the request contains the data to be confirmed.
+   */
+  static async uploadConfirm(req: Request<object, object, UploadConfirmReqBody>, res: Response) {
+    const resData = await AssetService.uploadConfirm(req.user!.id, req.body);
+    const validatedResData = uploadResSchema.parse(resData);
+    res.json(validatedResData);
   }
 }

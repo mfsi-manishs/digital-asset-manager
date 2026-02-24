@@ -19,6 +19,12 @@
     "lint:all": "eslint \"**/*.{ts,tsx}\" --max-warnings=0",
     "lint:fix": "eslint 'backend/**/*.{ts,tsx}' 'frontend/**/*.{ts,tsx}' --fix",
     "format": "prettier --write \"{frontend,backend}/**/*.{js,jsx,ts,tsx,mjs,cjs}\"",
+    "clean:back": "npm run clean -w backend",
+    "clean:front": "npm run clean -w frontend",
+    "clean:image": "npm run clean -w image-service",
+    "clean:packages": "npm run clean -w packages",
+    "clean:video": "npm run clean -w video-service",
+    "clean": "npm run clean:packages && npm run clean:back && npm run clean:image && npm run clean:video && npm run clean:front",
     "dev:back": "npm run dev -w backend",
     "dev:front": "npm run dev -w frontend",
     "dev:image": "npm run dev -w image-service",
@@ -78,5 +84,8 @@
     "rimraf": "^6.1.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.54.0"
+  },
+  "dependencies": {
+    "axios": "^1.13.5"
   }
 }

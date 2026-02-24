@@ -17,7 +17,7 @@ export const globalErrorHandler = (err: GlobalError, _req: Request, res: Respons
   const message = err.message || "Internal Server Error";
 
   // Handle PostgreSQL DB errors
-  if (err && err.name === "SequelizeDatabaseError") {
+  if (err && (err.name === "SequelizeDatabaseError" || err.name === "SequelizeValidationErrors")) {
     res.status(400).json({
       status: "fail",
       error: "Invalid request data",

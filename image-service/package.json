@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx --env-file=../.env watch src/index.ts",
-    "build": "tsc",
-    "clean": "rimraf dist",
+    "build": "tsc --build --verbose",
+    "clean": "tsc --build --clean",
     "start": "node --env-file=../.env dist/index.js",
     "prod": "npm run build && npm start"
   },

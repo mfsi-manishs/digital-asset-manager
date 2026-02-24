@@ -11,6 +11,10 @@ A centralize and scalable solution to manage large volume of digital assets like
   > npx sequelize-cli db:create
   > npx sequelize-cli db:migrate
 
+- Generate API keys and add environment variables for various services
+
+  > npm run generate:internal-keys
+
 - Execute following commands using different terminals to run API server and BullMQ workers
 
   > npm run dev or (npm run build)

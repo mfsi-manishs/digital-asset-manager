@@ -4,6 +4,7 @@
  */
 
 import fs from "fs";
+import path from "path";
 import { fileURLToPath } from "url";
 
 /**
@@ -42,4 +43,14 @@ export function ensureDirExists(dirPath: string) {
     fs.mkdirSync(dirPath, { recursive: true });
   }
   return dirPath;
+}
+
+/**
+ * Returns the local directory path for a given import.meta.url
+ * where the assets for downloading will be stored.
+ * @param {string} importMetaUrl The import.meta.url to convert to a local directory path.
+ * @returns {string} The local directory path where the assets for downloading will be stored.
+ */
+export function getDownloadDirPath(importMetaUrl: string) {
+  return path.join(getLocalDirPath(importMetaUrl), "../../assets");
 }

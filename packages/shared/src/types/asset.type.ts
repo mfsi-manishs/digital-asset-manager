@@ -1,4 +1,9 @@
 /**
+ * @file asset.type.ts
+ * @fileoverview This file contains the asset type
+ */
+
+/**
  * @constant ASSET_FILE_TYPES
  * @description Asset file types
  */
@@ -16,10 +21,12 @@ export type AssetFileType = keyof typeof ASSET_FILE_TYPES;
  * @description Asset file status
  */
 export const ASSET_FILE_STATUS = {
-  uploaded: "uploaded",
-  processing: "processing",
-  ready: "ready",
-  failed: "failed",
+  pending: "pending", // record created in db with generation of presigned url
+  uploading: "uploading", // file being uploaded to storage
+  uploaded: "uploaded", // file successfully uploaded to storage
+  processing: "processing", // file is being processed
+  ready: "ready", // file is processed and ready to download
+  failed: "failed", // file uploading or processing failed
 };
 export type AssetFileStatus = keyof typeof ASSET_FILE_STATUS;
 
@@ -31,7 +38,6 @@ export interface FileMetadata {
   fileName: string;
   fileSize: number; // in bytes
   fileType: string; // e.g., "jpg", "mp4", "pdf"
-  filePath: string;
   dateCreated: Date;
   dateModified: Date;
   mimeType: string;
@@ -92,13 +98,13 @@ export type ResolutionNames = keyof typeof RESOLUTIONS;
 export interface BucketObject {
   bucketName: string;
   objectKey: string;
-  etag: string | undefined;
+  etag?: string | undefined;
 }
 
 export interface StorageData {
   originalFile: BucketObject;
-  thumbnailPreviewFile: BucketObject;
-  processedFiles: Record<ResolutionNames, BucketObject>;
+  thumbnailPreviewFile?: BucketObject;
+  processedFiles?: Record<ResolutionNames, BucketObject>;
 }
 
 export interface SignedUrls {
@@ -110,12 +116,13 @@ export interface SignedUrls {
  * @description Queue data
  */
 export interface QueueData {
+  bucketName: string;
+  objectKey: string;
   assetId: number;
   userId: number;
   originalName: string;
   mimeType: string;
   fileSize: number;
-  filePath: string;
 }
 
 /**

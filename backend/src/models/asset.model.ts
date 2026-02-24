@@ -70,7 +70,7 @@ AssetModel.init(
     },
     status: {
       type: DataTypes.ENUM(...Object.values(ASSET_FILE_STATUS)),
-      defaultValue: ASSET_FILE_STATUS.uploaded,
+      defaultValue: ASSET_FILE_STATUS.pending,
       allowNull: false,
     },
     mimeType: {
@@ -80,7 +80,6 @@ AssetModel.init(
     },
     size: {
       type: DataTypes.BIGINT,
-      allowNull: false,
     },
     createdAt: {
       type: DataTypes.DATE,

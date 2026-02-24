@@ -4,13 +4,20 @@
  */
 
 import type {
+  AssetFileStatus,
   BucketObject,
   ImageMetadata,
   ObjectMetadata,
   QueueData,
   ResolutionNames,
 } from "@digital-asset-manager/shared";
-import { BUCKET_NAMES, ensureBucket, minioClient } from "@digital-asset-manager/shared";
+import {
+  ASSET_FILE_STATUS,
+  BUCKET_NAMES,
+  ensureBucket,
+  getDownloadDirPath,
+  minioClient,
+} from "@digital-asset-manager/shared";
 import type { Job } from "bullmq";
 import ffmpegPath from "ffmpeg-static";
 import ffprobePath from "ffprobe-static";
@@ -18,17 +25,22 @@ import ffmpeg from "fluent-ffmpeg";
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
+import { v4 as uuid } from "uuid";
+import { ImageService } from "./image.service.js";
 import { ImageUtils } from "./image.utils.js";
 
 ffmpeg.setFfmpegPath(ffmpegPath as unknown as string);
 ffmpeg.setFfprobePath(ffprobePath.path);
 
 export default async function imageProcessor(job: Job<QueueData>) {
-  const { filePath, userId, assetId } = job.data;
+  const { bucketName, objectKey, userId, assetId, originalName } = job.data;
+  const dirPath = getDownloadDirPath(import.meta.url);
+  const filePath = path.join(dirPath, originalName);
   try {
+    await minioClient.fGetObject(bucketName, objectKey, filePath);
     console.log(`Processing image: ${filePath}`);
 
-    // await AssetService.update(userId, assetId, { status: "processing" }); // TODO: update status via web service or queue
+    await ImageService.updateAsset(userId, assetId, ASSET_FILE_STATUS.processing as AssetFileStatus);
 
     // Example: check file exists
     if (!fs.existsSync(filePath)) {
@@ -41,7 +53,7 @@ export default async function imageProcessor(job: Job<QueueData>) {
     const imgMetadata = toImageMetadata(path.extname(filePath), stats.ctime, stats.mtime, job.data, metadata);
 
     // Generate thumbnail
-    const thumbnailPath = path.join(path.dirname(filePath), "thumbnail-" + path.basename(filePath));
+    const thumbnailPath = path.join(dirPath, "thumbnail-" + originalName);
     await sharp(filePath).resize(200).toFile(thumbnailPath);
 
     // Generate various image resolutions
@@ -51,18 +63,11 @@ export default async function imageProcessor(job: Job<QueueData>) {
 
     await ensureBucket(BUCKET_NAMES.damimages);
 
-    // Upload original file to MinIO
-    const { etag: etagOriginal } = await minioClient.fPutObject(
-      BUCKET_NAMES.damimages,
-      filePath,
-      filePath,
-      objMetadata
-    );
-
     // Upload thumbnail file to MinIO
+    const thumbObjKey = `processed/${uuid()}-${path.basename(thumbnailPath)}`;
     const { etag: etagThumbnail } = await minioClient.fPutObject(
       BUCKET_NAMES.damimages,
-      thumbnailPath,
+      thumbObjKey,
       thumbnailPath,
       objMetadata
     );
@@ -71,57 +76,29 @@ export default async function imageProcessor(job: Job<QueueData>) {
 
     // Upload processed files
     for (const [resolution, filePath] of Object.entries(generatedPaths) as [ResolutionNames, string][]) {
-      const { etag } = await minioClient.fPutObject(BUCKET_NAMES.damimages, filePath, filePath, objMetadata);
+      const objKey = `processed/${uuid()}-${path.basename(filePath)}`;
+      const { etag } = await minioClient.fPutObject(BUCKET_NAMES.damimages, objKey, filePath, objMetadata);
 
       processedFiles[resolution] = {
         bucketName: BUCKET_NAMES.damimages,
-        objectKey: filePath,
+        objectKey: objKey,
         etag,
       };
     }
 
-    // TODO: remove this when added code to update status via web service or queue
-    console.log(
-      JSON.stringify({
-        status: "ready",
-        metadata: imgMetadata,
-        storage: {
-          originalFile: {
-            bucketName: BUCKET_NAMES.damimages,
-            objectKey: filePath,
-            etag: etagOriginal,
-          },
-          thumbnailPreviewFile: {
-            bucketName: BUCKET_NAMES.damimages,
-            objectKey: thumbnailPath,
-            etag: etagThumbnail,
-          },
-          processedFiles,
+    await ImageService.updateAsset(userId, assetId, ASSET_FILE_STATUS.ready as AssetFileStatus, {
+      metadata: imgMetadata,
+      storage: {
+        thumbnailPreviewFile: {
+          bucketName: BUCKET_NAMES.damimages,
+          objectKey: thumbObjKey,
+          etag: etagThumbnail,
         },
-      })
-    );
-
-    // TODO: update status via web service or queue
-    // Update asset in database
-    // await AssetService.update(userId, assetId, {
-    //   status: "ready",
-    //   metadata: imgMetadata,
-    //   storage: {
-    //     originalFile: {
-    //       bucketName: BUCKET_NAMES.damimages,
-    //       objectKey: filePath,
-    //       etag: etagOriginal,
-    //     },
-    //     thumbnailPreviewFile: {
-    //       bucketName: BUCKET_NAMES.damimages,
-    //       objectKey: thumbnailPath,
-    //       etag: etagThumbnail,
-    //     },
-    //     processedFiles,
-    //   },
-    // });
+        processedFiles,
+      },
+    });
   } catch (error) {
-    // await AssetService.update(userId, assetId, { status: "failed" }); // TODO: update status via web service or queue
+    await ImageService.updateAsset(userId, assetId, ASSET_FILE_STATUS.failed as AssetFileStatus);
     console.error(`Error processing image: ${filePath}`, error);
     throw error;
   }
@@ -138,7 +115,6 @@ const toImageMetadata = (
     fileName: jobData.originalName,
     fileSize: jobData.fileSize,
     fileType: ext,
-    filePath: jobData.filePath,
     dateCreated: ctime,
     dateModified: mtime,
     mimeType: jobData.mimeType,

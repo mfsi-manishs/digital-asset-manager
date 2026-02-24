@@ -39,6 +39,46 @@ export async function initBuckets(bucketNames: string[]) {
   }
 }
 
+/**
+ * Retrieves the object info of a given object in a MinIO bucket.
+ * If the object does not exist, the function will return null.
+ * @param {string} bucketName - The name of the bucket where the object is located.
+ * @param {string} objectKey - The key of the object to retrieve.
+ * @returns {Promise<Stat | null>} - A promise that resolves to the object info if the object exists, or null if it does not.
+ */
+export async function getObjectInfo(bucketName: string, objectKey: string) {
+  try {
+    const stat = await minioClient.statObject(bucketName, objectKey);
+    return stat;
+  } catch (err: unknown) {
+    // Specifically check for 'NotFound' or 'NoSuchKey' errors
+    if (err instanceof Error && "code" in err && (err.code === "NotFound" || err.code === "NoSuchKey")) {
+      return null;
+    }
+    throw err;
+  }
+}
+
+/**
+ * Downloads an object from MinIO to a specific local path.
+ * @param {string} bucketName - Your MinIO bucket name.
+ * @param {string} objectKey - The key/path of the file in MinIO.
+ * @param {string} destinationPath - Where to save the file on your disk.
+ */
+export async function downloadToLocal(bucketName: string, objectKey: string, destinationPath: string) {
+  try {
+    await minioClient.fGetObject(bucketName, objectKey, destinationPath);
+    console.log(`Successfully downloaded ${objectKey} to ${destinationPath}`);
+    return true;
+  } catch (err) {
+    // Specifically check for 'NotFound' or 'NoSuchKey' errors
+    if (err instanceof Error && "code" in err && (err.code === "NotFound" || err.code === "NoSuchKey")) {
+      return false;
+    }
+    throw err;
+  }
+}
+
 export const BUCKET_NAMES = {
   damimages: "damimages",
   damvideos: "damvideos",
