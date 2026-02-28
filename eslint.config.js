@@ -1,7 +1,11 @@
 import js from "@eslint/js";
-import globals from "globals";
-import tseslint from "typescript-eslint";
 import { defineConfig } from "eslint/config";
+import globals from "globals";
+import path from "path";
+import tseslint from "typescript-eslint";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig([
   {
@@ -16,6 +20,54 @@ export default defineConfig([
     files: ["**/*.{ts,tsx}"],
     rules: {
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    },
+  },
+
+  // Backend
+  {
+    files: ["backend/src/**/*.ts"],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: __dirname,
+      },
+    },
+  },
+
+  // Frontend
+  {
+    files: ["frontend/src/**/*.{ts,tsx}"],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: __dirname,
+      },
+    },
+  },
+
+  // image-service and video-service
+  {
+    files: ["image-service/src/**/*.ts", "video-service/src/**/*.ts"],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: __dirname,
+      },
+    },
+  },
+
+  // packages
+  {
+    files: ["packages/**/src/**/*.ts"],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: __dirname,
+      },
     },
   },
 

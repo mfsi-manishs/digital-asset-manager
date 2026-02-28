@@ -34,7 +34,6 @@ authRegistry.registerPath({
               email: { type: "string", example: "john@example.com" },
               role: { type: "string", example: "user" },
               isEmailVerified: { type: "boolean", example: true },
-              preferredCurrency: { type: "string", example: "USD" },
               createdAt: { type: "string", example: "2022-01-01T00:00:00.000Z" },
               updatedAt: { type: "string", example: "2022-01-01T00:00:00.000Z" },
             },
