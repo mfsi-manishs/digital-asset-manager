@@ -29,7 +29,7 @@ export function getLocalFilePath(importMetaUrl: string) {
  * @returns {string} The local directory path.
  */
 export function getLocalDirPath(importMetaUrl: string) {
-  return getLocalFilePath(importMetaUrl);
+  return path.dirname(fileURLToPath(importMetaUrl));
 }
 
 /**

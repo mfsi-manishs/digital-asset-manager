@@ -3,22 +3,28 @@
  * @fileoverview This file contains the video processing worker
  */
 
-import { redisConnection } from "@digital-asset-manager/shared";
-import { VIDEO_QUEUE_NAME } from "@digital-asset-manager/shared";
-import { getLocalDirPath } from "@digital-asset-manager/shared";
-import { Worker, type ConnectionOptions } from "bullmq";
+import { getEnv, getLocalDirPath, redisConnection, VIDEO_QUEUE_NAME } from "@digital-asset-manager/shared";
+import { Job, Worker, type ConnectionOptions } from "bullmq";
 import path from "path";
 import { pathToFileURL } from "url";
 
 console.log("Starting video worker...");
 
 // Point to the COMPILED .js file in dist/build folder
-const videoProcessorPath = path.join(getLocalDirPath(import.meta.url), "../video.processor.js");
+const videoProcessorPath = path.join(getLocalDirPath(import.meta.url), "video.processor.js");
 const videoProcessorUrl = pathToFileURL(videoProcessorPath);
 
 console.log(`Video processor script's URL: ${videoProcessorUrl}`);
 
-const videoWorker = new Worker(VIDEO_QUEUE_NAME, videoProcessorUrl, {
+const processor =
+  getEnv().nodeEnv !== "production"
+    ? async (job: Job) => {
+        const processorModule = await import("./video.processor.js");
+        return processorModule.default(job);
+      }
+    : videoProcessorUrl;
+
+const videoWorker = new Worker(VIDEO_QUEUE_NAME, processor, {
   connection: redisConnection as ConnectionOptions,
   lockDuration: 300000, // 300 seconds
   stalledInterval: 30000, // Check for stalled jobs every 30 seconds

@@ -10,7 +10,7 @@ import { UserModel } from "../../models/user.model.js";
 import { sendMail } from "../../services/mail.service.js";
 import { generateRandomToken, hashToken } from "../../utils/crypto.utils.js";
 import { ConflictError, UnauthorizedError } from "../../utils/error.utils.js";
-import { signAccessToken } from "../../utils/jwt.utils.js";
+import { getSignedAccessToken } from "../../utils/jwt.utils.js";
 import type { LoginReqBody, RefreshTokenInput, RegisterReqBody } from "./auth.schema.js";
 
 /**
@@ -87,7 +87,7 @@ export class AuthService {
     if (!userRole) throw new UnauthorizedError("Unauthorized user role");
 
     // Issue tokens
-    const accessToken = await signAccessToken({ sub: user.id.toString(), role: userRole });
+    const accessToken = await getSignedAccessToken({ sub: user.id.toString(), role: userRole });
     const refreshToken = generateRandomToken();
 
     await models.RefreshTokenModel.create({
@@ -123,7 +123,7 @@ export class AuthService {
     const userRole = user.role;
     if (!userRole) throw new UnauthorizedError("Unauthorized user role");
 
-    const accessToken = await signAccessToken({ sub: user.id.toString(), role: userRole });
+    const accessToken = await getSignedAccessToken({ sub: user.id.toString(), role: userRole });
     const newRefreshToken = generateRandomToken();
 
     await models.RefreshTokenModel.create({

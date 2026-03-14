@@ -14,7 +14,7 @@ import type { AccessTokenPayload } from "../modules/auth/auth.types.js";
  * @description This function signs an access token using the given payload
  * It takes a payload containing sub, role, and other claims, and returns a promise containing the signed access token
  */
-export async function signAccessToken(payload: AccessTokenPayload): Promise<string> {
+export async function getSignedAccessToken(payload: AccessTokenPayload): Promise<string> {
   return new SignJWT(payload as JWTPayload)
     .setProtectedHeader({ alg: jwtConfig.accessToken.algorithm })
     .setIssuedAt()
